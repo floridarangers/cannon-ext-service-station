@@ -1,0 +1,172 @@
+{{if .Notice}}<div class="admin-alert admin-alert-success">{{.Notice}}</div>{{end}}
+
+<div class="service-station-extension-header">
+  <div class="admin-page-actions">
+    <a class="btn-admin-outline" href="{{.SettingsURL}}" data-turbo-frame="_top">
+      <i class="bi bi-sliders"></i> Settings
+    </a>
+    <a class="btn-admin-primary" href="{{.FormURL}}" data-turbo-frame="_top">
+      <i class="bi bi-ui-checks"></i> Edit form
+    </a>
+  </div>
+</div>
+
+<div class="service-station-admin-summary">
+  <div class="service-station-admin-summary-card">
+    <div class="service-station-admin-summary-icon"><i class="bi bi-signpost"></i></div>
+    <div class="service-station-admin-summary-content">
+      <span class="service-station-admin-summary-label">Public form</span>
+      <strong>{{if .HasForm}}{{.Form.Name}}{{else}}Not configured{{end}}</strong>
+      <span class="admin-cell-muted">
+        {{if and .HasForm (eq .Form.Status "active")}}Active on /service/station1 and the other station pages{{else if .HasForm}}Inactive{{else}}Add a form schema{{end}}
+      </span>
+    </div>
+  </div>
+  <div class="service-station-admin-summary-card">
+    <div class="service-station-admin-summary-icon"><i class="bi bi-inbox"></i></div>
+    <div class="service-station-admin-summary-content">
+      <span class="service-station-admin-summary-label">Requests</span>
+      <strong>{{.Total}}</strong>
+      <span class="admin-cell-muted">Stored service requests</span>
+    </div>
+  </div>
+</div>
+
+<div class="admin-data-card">
+  <div class="admin-data-card-header service-station-admin-card-header">
+    <div class="admin-data-card-summary-main">
+      <h2 class="admin-data-card-title">Service requests</h2>
+      <p class="admin-data-card-desc">Each row is one restroom request. Notifications use the same plain-text details.</p>
+    </div>
+  </div>
+  <div class="admin-table-scroll">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Station</th>
+          <th>Request</th>
+          <th>Received</th>
+          <th class="admin-col-actions"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Rows}}
+        <tr>
+          <td><a class="admin-cell-primary" href="{{$.BasePath}}/entries/{{.ID}}" data-turbo-frame="_top">{{.StationID}}</a></td>
+          <td>{{.Summary}}</td>
+          <td>{{.CreatedAt}}</td>
+          <td class="admin-col-actions">
+            <div class="admin-row-actions">
+              <a class="btn-admin-icon" href="{{$.BasePath}}/entries/{{.ID}}" data-turbo-frame="_top" title="View">
+                <i class="bi bi-eye"></i>
+              </a>
+              <form method="post" action="{{$.BasePath}}/entries/{{.ID}}/delete" class="admin-inline-form" onsubmit="return confirm('Delete this service request?')">
+                {{$.CSRFField}}
+                <button type="submit" class="btn-admin-icon btn-admin-icon-danger" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {{else}}
+        <tr>
+          <td colspan="4" class="admin-table-empty-cell">
+            <div class="admin-empty-state">
+              <div class="admin-empty-state-icon"><i class="bi bi-inbox"></i></div>
+              <div class="admin-empty-state-title">No service requests yet</div>
+              <p class="admin-empty-state-desc">Requests appear here after someone submits /service/station1 or another station page.</p>
+            </div>
+          </td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+  {{if .Total}}
+  <div class="admin-pagination">
+    <span class="admin-pagination-summary">
+      Showing
+      <strong>{{add (mul (sub .Page 1) .PageSize) 1}}</strong>–<strong>{{if lt (mul .Page .PageSize) .Total}}{{mul .Page .PageSize}}{{else}}{{.Total}}{{end}}</strong>
+      of <strong>{{.Total}}</strong> results
+    </span>
+    <div class="admin-pagination-actions">
+      {{if gt .Page 1}}
+      <a class="btn-admin-ghost btn-admin-sm" href="{{.BasePath}}?page={{sub .Page 1}}" data-turbo-frame="_top">Previous</a>
+      {{else}}
+      <span class="btn-admin-ghost btn-admin-sm disabled">Previous</span>
+      {{end}}
+      <span class="admin-pagination-pages">
+        <span class="admin-pagination-page active">{{.Page}}</span>
+        <span class="admin-pagination-sep">/</span>
+        <span class="admin-pagination-total">{{pageCount .Total .PageSize}}</span>
+      </span>
+      {{if lt (mul .Page .PageSize) .Total}}
+      <a class="btn-admin-ghost btn-admin-sm" href="{{.BasePath}}?page={{add .Page 1}}" data-turbo-frame="_top">Next</a>
+      {{else}}
+      <span class="btn-admin-ghost btn-admin-sm disabled">Next</span>
+      {{end}}
+    </div>
+  </div>
+  {{end}}
+</div>
+
+<style>
+  .admin-extension-app .service-station-extension-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+  }
+  .admin-extension-app .service-station-admin-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .admin-extension-app .service-station-admin-summary-card {
+    display: flex;
+    gap: 0.875rem;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-lg);
+    background: var(--admin-card);
+    box-shadow: var(--admin-shadow-xs);
+  }
+  .admin-extension-app .service-station-admin-summary-icon {
+    display: inline-flex;
+    width: 2.5rem;
+    height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.625rem;
+    color: var(--admin-primary);
+    background: rgba(37, 99, 235, 0.08);
+    flex: 0 0 auto;
+  }
+  .admin-extension-app .service-station-admin-summary-content {
+    min-width: 0;
+    display: grid;
+    gap: 0.1rem;
+  }
+  .admin-extension-app .service-station-admin-summary-content strong {
+    font-size: 1.15rem;
+    font-weight: 650;
+    color: var(--admin-foreground);
+  }
+  .admin-extension-app .service-station-admin-summary-label {
+    font-size: 0.75rem;
+    font-weight: 650;
+    color: #52525b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  @media (max-width: 760px) {
+    .admin-extension-app .service-station-admin-summary,
+    .admin-extension-app .service-station-extension-header {
+      grid-template-columns: 1fr;
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+</style>

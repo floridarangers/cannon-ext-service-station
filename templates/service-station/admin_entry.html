@@ -1,0 +1,31 @@
+<div class="admin-form-card">
+  <div class="admin-form-card-header">
+    <div class="admin-form-card-heading">
+      <h2 class="admin-form-card-title">{{.Entry.StationID}}</h2>
+      <p class="admin-form-card-desc">Received {{.When}}. This is the plain-text notification body.</p>
+    </div>
+  </div>
+  <div class="admin-form-card-body">
+    <pre class="service-station-plain">{{.Text}}</pre>
+    <div class="admin-form-actions">
+      <a class="btn-admin-outline" href="{{.BasePath}}" data-turbo-frame="_top">Back</a>
+      <form method="post" action="{{.DeleteURL}}" class="admin-inline-form" onsubmit="return confirm('Delete this service request?')">
+        {{.CSRFField}}
+        <button type="submit" class="btn-admin-outline">Delete</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  .admin-extension-app .service-station-plain {
+    margin: 0 0 1.25rem;
+    padding: 1rem;
+    white-space: pre-wrap;
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius);
+    background: var(--admin-surface, #fafafa);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.875rem;
+  }
+</style>

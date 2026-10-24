@@ -1,0 +1,65 @@
+<section class="service-station-page py-4 w-100" {{if .StationID}}data-station-id="{{.StationID}}"{{end}}>
+  <div class="card">
+    <div class="card-body p-4">
+      {{if .Message}}
+      <div class="alert alert-warning" role="alert">{{.Message}}</div>
+      {{else}}
+      {{if .Form.ShowName}}<h1 class="card-title h3 mb-3">{{.Form.Name}}</h1>{{end}}
+      {{if .Form.Introduction}}<p class="card-text text-muted mb-3">{{.Form.Introduction}}</p>{{end}}
+      <p class="service-station-label text-muted mb-4">Station <strong>{{.StationID}}</strong></p>
+      {{if .Sent}}
+      <div class="alert alert-success" role="alert">
+        Thanks — this service request was sent.
+      </div>
+      {{end}}
+      <form method="post" action="{{.ActionURL}}" class="service-station-form">
+        {{.CSRFField}}
+        <input type="hidden" name="form_id" value="{{.Form.ID}}">
+        <input type="hidden" name="return_url" value="{{.ReturnURL}}">
+        {{range .Fields}}
+        {{if .Hidden}}
+        <input type="hidden" name="{{.Name}}" value="{{.Default}}">
+        {{else}}
+        <div class="mb-3 service-station-field">
+          {{if .Checkboxes}}
+          <fieldset>
+            <legend class="form-label mb-2">{{.Label}}</legend>
+            {{$field := .}}
+            {{range $i, $opt := .Options}}
+            <div class="form-check">
+              <input class="form-check-input" id="service-{{$.Form.ID}}-{{$field.Name}}-{{$i}}" name="{{$field.Name}}" type="checkbox" value="{{$opt.Value}}">
+              <label class="form-check-label" for="service-{{$.Form.ID}}-{{$field.Name}}-{{$i}}">{{$opt.Label}}</label>
+            </div>
+            {{end}}
+          </fieldset>
+          {{else if .Select}}
+          <label class="form-label" for="service-{{$.Form.ID}}-{{.Name}}">{{.Label}}</label>
+          <select class="form-control form-select" id="service-{{$.Form.ID}}-{{.Name}}" name="{{.Name}}" {{if .Required}}required{{end}} {{if .Readonly}}disabled{{end}}>
+            {{if not .Required}}<option value=""></option>{{end}}
+            {{range .Options}}<option value="{{.Value}}" {{if .Selected}}selected{{end}}>{{.Label}}</option>{{end}}
+          </select>
+          {{else if .Boolean}}
+          <div class="form-check">
+            <input class="form-check-input" id="service-{{$.Form.ID}}-{{.Name}}" name="{{.Name}}" type="checkbox" value="true" {{if .Checked}}checked{{end}} {{if .Required}}required{{end}} {{if .Readonly}}disabled{{end}}>
+            <label class="form-check-label" for="service-{{$.Form.ID}}-{{.Name}}">{{.Label}}</label>
+          </div>
+          {{else if .Textarea}}
+          <label class="form-label" for="service-{{$.Form.ID}}-{{.Name}}">{{.Label}}</label>
+          <textarea class="form-control" id="service-{{$.Form.ID}}-{{.Name}}" name="{{.Name}}" rows="4" {{if .Placeholder}}placeholder="{{.Placeholder}}"{{end}} {{if .Required}}required{{end}} {{if .Readonly}}readonly{{end}}>{{.Default}}</textarea>
+          {{else}}
+          <label class="form-label" for="service-{{$.Form.ID}}-{{.Name}}">{{.Label}}</label>
+          <input class="form-control" id="service-{{$.Form.ID}}-{{.Name}}" name="{{.Name}}" type="{{.Type}}" value="{{.Default}}" {{if .Step}}step="{{.Step}}"{{end}} {{if .Placeholder}}placeholder="{{.Placeholder}}"{{end}} {{if .Required}}required{{end}} {{if .Readonly}}readonly{{end}}>
+          {{end}}
+          {{if .Help}}<div class="form-text">{{.Help}}</div>{{end}}
+        </div>
+        {{end}}
+        {{end}}
+        <div class="mb-3 service-station-captcha">
+          <captcha context="form" provider="any"></captcha>
+        </div>
+        <button type="submit" class="btn btn-primary">Request service</button>
+      </form>
+      {{end}}
+    </div>
+  </div>
+</section>
